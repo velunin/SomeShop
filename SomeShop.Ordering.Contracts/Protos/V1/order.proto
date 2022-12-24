@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+option csharp_namespace = "SomeShop.Ordering.Order.V1";
+
+import "SomeShop.Common.Proto/Protos/money.proto";
+
+package order;
+
+service Service {
+  rpc Get (GetRequest) returns (GetResponse);
+  rpc Create (CreateOrderRequest) returns (CreateOrderResponse);
+  rpc Checkout (CheckoutOrderRequest) returns (CheckoutOrderResponse);
+}
+
+message GetRequest {
+  string id = 1;
+}
+
+message GetResponse {
+  Order order = 1;
+}
+
+message CreateOrderRequest {
+  string cart_id = 1;
+}
+
+message CreateOrderResponse {
+  string order_id = 1;
+}
+
+message CheckoutOrderRequest {
+  string id = 1;
+}
+
+message CheckoutOrderResponse {
+}
+
+message Order {
+  string id = 1;
+  common.Money total_sum = 2;
+  repeated OrderItem items = 4;
+
+  message OrderItem {
+    string id = 1;
+    string product_id = 2;
+    uint32 quantity = 3;
+    common.Money price = 4;
+  }
+}
+
+message OrderCreatedMessage {
+  string message_id = 1;
+  string order_id = 2;
+  repeated OrderCreatedMessageItem items = 3;
+  
+  message OrderCreatedMessageItem {
+    string product_id = 1;
+    uint32 quantity = 2;
+    common.Money price = 3; 
+  }
+}

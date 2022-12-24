@@ -1,0 +1,38 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  ENV_COMPOSE_FILE: "SomeShop.Api/docker-compose.env.yaml"
+  TESTS_COMPOSE_FILE: "SomeShop.IntegrationTests/docker-compose.yaml"
+  MIGRATIONS_STARTUP: "--startup-project SomeShop.Api"
+
+tasks:
+  run-env:
+    cmds:
+      - docker compose -f "{{.ENV_COMPOSE_FILE}}" build
+      - docker compose -f "{{.ENV_COMPOSE_FILE}}" up -d --no-build
+
+  stop-env:
+    cmds:
+      - docker compose -f "{{.ENV_COMPOSE_FILE}}" down
+
+  run-integration-tests:
+    cmds:
+      - docker compose -f "{{.ENV_COMPOSE_FILE}}" -f "{{.TESTS_COMPOSE_FILE}}" build
+      - docker compose -f "{{.ENV_COMPOSE_FILE}}" -f "{{.TESTS_COMPOSE_FILE}}" up -d --no-build
+      - docker compose -f "{{.ENV_COMPOSE_FILE}}" -f "{{.TESTS_COMPOSE_FILE}}" run tests dotnet test --logger "console;verbosity=detailed"
+      - docker compose -f "{{.ENV_COMPOSE_FILE}}" -f "{{.TESTS_COMPOSE_FILE}}" down
+        
+  ordering-migrate:
+    cmds:
+      - dotnet ef migrations {{.CLI_ARGS}} {{.CONTEXT}} {{.MIGRATIONS_STARTUP}}
+    vars:
+      CONTEXT: "--context OrderingDbContext -p SomeShop.Ordering.EF"
+      
+  catalog-migrate:
+    cmds:
+      - dotnet ef migrations {{.CLI_ARGS}} {{.CONTEXT}} {{.MIGRATIONS_STARTUP}}
+    vars:
+      CONTEXT: "--context CatalogDbContext -p SomeShop.Catalog.EF"
+      

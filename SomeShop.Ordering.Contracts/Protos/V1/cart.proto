@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+option csharp_namespace = "SomeShop.Ordering.Cart.V1";
+
+import "SomeShop.Common.Proto/Protos/money.proto";
+
+package cart;
+
+service Service {
+  rpc Get (GetRequest) returns (GetResponse);
+  rpc Create (CreateRequest) returns (CreateResponse);
+  rpc AddProduct (AddProductRequest) returns (AddProductResponse);
+  rpc ChangeProductQuantity (ChangeProductQuantityRequest) returns (ChangeProductQuantityResponse);
+  rpc RemoveProduct (RemoveProductRequest) returns (RemoveProductResponse);
+  rpc Clear(ClearRequest) returns (ClearResponse);
+}
+
+message GetRequest {
+  string cart_id = 1;
+}
+
+message GetResponse {
+  Cart cart = 1;
+}
+
+message CreateRequest {
+}
+
+message CreateResponse {
+  string cart_id = 1;
+}
+
+message AddProductRequest {
+  string cart_id = 1;
+  string product_id = 2;
+  uint32 quantity = 3;
+}
+
+message AddProductResponse {
+}
+
+message ChangeProductQuantityRequest {
+  string cart_id = 1;
+  string product_id = 2;
+  uint32 new_quantity = 3;
+}
+
+message ChangeProductQuantityResponse {
+}
+
+message RemoveProductRequest {
+  string cart_id = 1;
+  string product_id = 2;
+}
+
+message RemoveProductResponse {
+}
+
+message ClearRequest {
+  string cart_id = 1;
+}
+
+message ClearResponse {
+}
+
+message Cart {
+  string id = 1;
+  common.Money total_sum = 2;
+  uint32 total_products_positions = 3;
+  repeated CartItem items = 4;
+  
+  message CartItem {
+    string id = 1;
+    string product_id = 2;
+    uint32 quantity = 3;
+    common.Money price = 4;
+  }
+}
