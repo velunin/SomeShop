@@ -1,0 +1,1 @@
+A reference DDD/CQRS/Monolith-first project 
