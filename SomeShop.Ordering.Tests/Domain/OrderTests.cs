@@ -52,7 +52,6 @@ public class OrderTests
         Assert.ThrowsAsync<CartIsEmptyException>(async () =>
         {
              await Order.Create(cartId, cartServiceMock.Object, CancellationToken.None);
-            
         });
     }
     
