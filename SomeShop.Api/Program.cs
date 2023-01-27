@@ -35,6 +35,8 @@ builder.Services
         options.Interceptors.Add<ExceptionInterceptor>();
     });
 
+builder.Services.AddHealthChecks();
+
 var app = builder.Build();
 
 using var startupScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope();
@@ -45,6 +47,7 @@ await CatalogModule.Init(startupScope.ServiceProvider.GetRequiredService<Catalog
 app.MapGrpcService<CartV1.GrpcService>();
 app.MapGrpcService<OrderV1.GrpcService>();
 app.MapGrpcService<CatalogV1.GrpcService>();
+app.MapHealthChecks("/ready");
 app.UseCqrsVibe();
 
 app.Run();
