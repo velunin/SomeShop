@@ -1,0 +1,31 @@
+version: "3.9"
+services:
+  app:
+    build:
+      context: ../
+      dockerfile: ./SomeShop.Api/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Tests
+    ports:
+      - "13001:13001"
+      - "8080:8080"
+    healthcheck:
+      test: curl --fail http://localhost:8080/ready || exit 1
+      interval: 5s
+      retries: 10
+    depends_on:
+      - db
+      - init-kafka
+      - kafka
+    
+  tests:
+    build:
+      context: ../
+      dockerfile: ./SomeShop.IntegrationTests/Dockerfile
+    environment:
+      - SOMESHOP_API_URL=http://app:13001
+    depends_on:
+      - app
+      - db
+      - init-kafka
+      - kafka

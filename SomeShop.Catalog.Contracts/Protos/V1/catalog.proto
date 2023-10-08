@@ -1,0 +1,24 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "SomeShop.Catalog.V1";
+
+import "SomeShop.Common.Proto/Protos/money.proto";
+
+package catalog;
+
+service Service {
+  rpc GetProducts (GetProductsRequest) returns (GetProductsResponse);
+}
+
+message GetProductsRequest {
+}
+
+message GetProductsResponse {
+  repeated Product products = 1;
+  
+  message Product {
+    string id = 1;
+    string name = 2;
+    common.Money price = 3;
+  }
+}

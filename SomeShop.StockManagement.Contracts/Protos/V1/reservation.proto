@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+option csharp_namespace = "SomeShop.StockManagement.Reservation.V1";
+
+package reservation;
+
+message OrderProductsReservationResultMessage {
+  string message_id = 1;
+  string order_id = 2;
+  bool success = 3;
+}

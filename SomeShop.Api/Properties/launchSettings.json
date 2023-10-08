@@ -1,0 +1,17 @@
+﻿{
+  "profiles": {
+    "default": {
+      "commandName": "Project",
+      "dotnetRunMessages": false,
+      "launchBrowser": false
+    },
+    "local": {
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "launchBrowser": false,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

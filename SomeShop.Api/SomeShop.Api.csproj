@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Confluent.Kafka" Version="1.9.3" />
+        <PackageReference Include="CqrsVibe.AspNetCore" Version="1.0.2" />
+        <PackageReference Include="Grpc.AspNetCore" Version="2.49.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.0">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\SomeShop.Catalog.App\SomeShop.Catalog.App.csproj" />
+      <ProjectReference Include="..\SomeShop.Ordering.App\SomeShop.Ordering.App.csproj" />
+      <ProjectReference Include="..\SomeShop.StockManagement.App\SomeShop.StockManagement.App.csproj" />
+    </ItemGroup>
+
+</Project>

@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\SomeShop.Catalog.Contracts\SomeShop.Catalog.Contracts.csproj" />
+      <ProjectReference Include="..\SomeShop.Catalog.EF\SomeShop.Catalog.EF.csproj" />
+      <ProjectReference Include="..\SomeShop.Common.Domain\SomeShop.Common.Domain.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="CqrsVibe" Version="1.0.2" />
+      <PackageReference Include="CqrsVibe.MicrosoftDependencyInjection" Version="1.0.2" />
+      <PackageReference Include="Dapper" Version="2.0.123" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.0" />
+    </ItemGroup>
+
+</Project>
