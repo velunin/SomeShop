@@ -1,22 +1,23 @@
 ﻿using Confluent.Kafka;
-using Google.Protobuf;
+using CqrsVibe.Commands;
 using Microsoft.Extensions.Logging;
 using SomeShop.Common.App.Kafka;
+using SomeShop.Common.Domain.Ids;
 using SomeShop.Ordering.Order.V1;
-using SomeShop.StockManagement.Contracts;
-using SomeShop.StockManagement.Reservation.V1;
+using SomeShop.StockManagement.App.ProductsReservation;
+using SomeShop.StockManagement.Domain;
 
 namespace SomeShop.StockManagement.App.ProductsReservation.WhenEventReceived;
 
 public class OrderCreatedConsumer : IConsumer
 {
     private readonly ILogger<OrderCreatedConsumer> _logger;
-    private readonly IProducer _producer;
+    private readonly ICommandProcessor _commandProcessor;
 
-    public OrderCreatedConsumer(ILogger<OrderCreatedConsumer> logger, IProducer producer)
+    public OrderCreatedConsumer(ILogger<OrderCreatedConsumer> logger, ICommandProcessor commandProcessor)
     {
         _logger = logger;
-        _producer = producer;
+        _commandProcessor = commandProcessor;
     }
 
     public async Task HandleAsync(Message<byte[], byte[]> message, CancellationToken cancellationToken)
@@ -27,15 +28,13 @@ public class OrderCreatedConsumer : IConsumer
             return;
         }
 
-        var productsReservationResult = new OrderProductsReservationResultMessage
-        {
-            MessageId = Guid.NewGuid().ToString("D"),
-            OrderId = orderCreated.OrderId,
-            Success = true
-        };
+        var items = orderCreated.Items
+            .Select(x => new RequestedItem(new ProductId(Guid.Parse(x.ProductId)), x.Quantity))
+            .ToArray();
 
-        await _producer.ProduceAsync(Topics.OrderProductsReservationResult, orderCreated.OrderId,
-            productsReservationResult.ToByteArray(), cancellationToken);
+        await _commandProcessor.ProcessAsync(
+            new ReserveProducts(new OrderId(Guid.Parse(orderCreated.OrderId)), items),
+            cancellationToken);
     }
 
     private OrderCreatedMessage? Parse(byte[] bytes)

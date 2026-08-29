@@ -5,6 +5,7 @@ using SomeShop.Catalog.EF;
 using SomeShop.Common.App;
 using SomeShop.Ordering.App;
 using SomeShop.Ordering.EF;
+using SomeShop.StockManagement.EF;
 using SomeShop.StockManagement.App;
 using OrderingModule = SomeShop.Ordering.App.Module;
 using CatalogModule = SomeShop.Catalog.App.Module;
@@ -43,6 +44,7 @@ using var startupScope = app.Services.GetRequiredService<IServiceScopeFactory>()
 
 await OrderingModule.Init(startupScope.ServiceProvider.GetRequiredService<OrderingDbContext>());
 await CatalogModule.Init(startupScope.ServiceProvider.GetRequiredService<CatalogDbContext>());
+await StockManagementModule.Init(startupScope.ServiceProvider.GetRequiredService<StockManagementDbContext>());
 
 app.MapGrpcService<CartV1.GrpcService>();
 app.MapGrpcService<OrderV1.GrpcService>();

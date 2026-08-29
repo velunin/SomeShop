@@ -69,3 +69,9 @@ tasks:
       - dotnet ef migrations {{.CLI_ARGS}} {{.CONTEXT}} {{.MIGRATIONS_STARTUP}}
     vars:
       CONTEXT: "--context CatalogDbContext -p SomeShop.Catalog.EF"
+
+  stock-management-migrate:
+    cmds:
+      - dotnet ef migrations {{.CLI_ARGS}} {{.CONTEXT}} {{.MIGRATIONS_STARTUP}}
+    vars:
+      CONTEXT: "--context StockManagementDbContext -p SomeShop.StockManagement.EF"
