@@ -77,6 +77,9 @@ public class ConsumerRunner : IConsumerRunner
                     }
                     catch (Exception ex)
                     {
+                        // Out of scope by design: no dead-letter queue, no retry limit, no
+                        // idempotency by message id. A failed message is logged and skipped, and
+                        // because the offset is committed only on success, a restart replays it.
                         _logger.LogError(ex, "Consume error");
 
                         await Task.Yield();

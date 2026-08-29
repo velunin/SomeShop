@@ -17,7 +17,9 @@ public class OrderCreatedOutbox : IOrderCreatedOutbox
 
     public Task Push(OrderCreatedOutboxMessage message, CancellationToken cancellationToken)
     {
-        // Fake outbox. Immediately sends the message. Not for production env. 
+        // Out of scope by design: this is a fake outbox — the message goes straight to Kafka
+        // from inside the caller's transaction. A real one writes to a table in that same
+        // transaction and lets a relay publish it; the two methods below are the missing half.
         
         var orderCreatedV1 = new OrderCreatedMessage()
         {
