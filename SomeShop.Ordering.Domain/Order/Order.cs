@@ -106,6 +106,8 @@ public class Order : AggregateBase
 
 public enum ReservationStatus
 {
+    // Out of scope by design: nothing moves an order out of Awaiting when the reservation result
+    // never arrives. A real flow needs a process manager with a timeout and compensation.
     Awaiting,
     WasReserved,
     WasFailed

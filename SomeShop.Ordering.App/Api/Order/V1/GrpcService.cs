@@ -41,6 +41,7 @@ public class GrpcService : Service.ServiceBase
             Order = new Ordering.Order.V1.Order
             {
                 Id = order.Id.Value.ToString("D"),
+                Status = order.Status.ToString("G"),
                 TotalSum = new Money(order.TotalSumAmount, order.TotalSumCurrency),
             }
         };

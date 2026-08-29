@@ -21,7 +21,7 @@ public class GetOrderHandler : IQueryHandler<GetOrder, GetOrderModel>
     public async Task<GetOrderModel> HandleAsync(IQueryHandlingContext<GetOrder> context, CancellationToken cancellationToken)
     {
         const string getOrderQuery =
-            "SELECT id, total_sum_amount, total_sum_currency " +
+            "SELECT id, status, total_sum_amount, total_sum_currency " +
             "FROM ordering.orders " +
             "WHERE id=@id";
 
@@ -61,6 +61,8 @@ public class GetOrder : IQuery<GetOrderModel>
 public class GetOrderModel
 {
     public OrderId Id { get; set; }
+
+    public Domain.OrderStatus Status { get; set; }
 
     public decimal TotalSumAmount { get; set; }
     

@@ -8,6 +8,7 @@ package catalog;
 
 service Service {
   rpc GetProducts (GetProductsRequest) returns (GetProductsResponse);
+  rpc GetProductPrice (GetProductPriceRequest) returns (GetProductPriceResponse);
 }
 
 message GetProductsRequest {
@@ -21,4 +22,13 @@ message GetProductsResponse {
     string name = 2;
     common.Money price = 3;
   }
+}
+
+message GetProductPriceRequest {
+  string product_id = 1;
+}
+
+message GetProductPriceResponse {
+  string product_id = 1;
+  common.Money price = 2;
 }

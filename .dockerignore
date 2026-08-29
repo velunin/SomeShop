@@ -1,0 +1,32 @@
+# Build context root for the shared Dockerfile.
+# Sources are ~0.7 MB, bin/obj are ~200 MB — keeping them out of the context
+# both shrinks the upload and stops local builds from invalidating COPY layers.
+**/bin
+**/obj
+**/.git
+**/.gitignore
+**/.dockerignore
+**/.idea
+**/.vs
+**/.vscode
+**/.DS_Store
+**/.env
+**/.project
+**/.settings
+**/.toolstarget
+**/*.*proj.user
+**/*.DotSettings.user
+**/*.dbmdl
+**/*.jfm
+**/azds.yaml
+**/charts
+**/docker-compose*
+**/Dockerfile*
+**/node_modules
+**/npm-debug.log
+**/secrets.dev.yaml
+**/values.dev.yaml
+LICENSE
+README.md
+CLAUDE.md
+Taskfile.yml

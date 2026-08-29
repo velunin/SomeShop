@@ -37,7 +37,7 @@ public static class DependencyInjectionExtensions
         return services.AddSingleton<IDomainEventsProcessor, DomainEventsProcessor>();
     }
 
-    private static IServiceCollection AddConfig<TConfig>(this IServiceCollection services, IConfiguration config,
+    public static IServiceCollection AddConfig<TConfig>(this IServiceCollection services, IConfiguration config,
         string section) where TConfig : class
     {
         var configModel = config.GetRequiredSection(section).Get<TConfig>() ??

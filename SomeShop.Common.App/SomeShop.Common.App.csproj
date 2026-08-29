@@ -14,15 +14,10 @@
       <PackageReference Include="Confluent.Kafka" Version="1.9.3" />
       <PackageReference Include="CqrsVibe" Version="1.0.2" />
       <PackageReference Include="CqrsVibe.MicrosoftDependencyInjection" Version="1.0.2" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="7.0.0" />
       <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="7.0.0" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
       <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Reference Include="Microsoft.Extensions.Configuration">
-        <HintPath>C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\7.0.0\Microsoft.Extensions.Configuration.dll</HintPath>
-      </Reference>
     </ItemGroup>
 
 </Project>

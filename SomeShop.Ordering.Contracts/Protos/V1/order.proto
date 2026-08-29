@@ -38,6 +38,7 @@ message CheckoutOrderResponse {
 message Order {
   string id = 1;
   common.Money total_sum = 2;
+  string status = 3;
   repeated OrderItem items = 4;
 
   message OrderItem {
