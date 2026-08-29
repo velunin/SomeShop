@@ -58,7 +58,7 @@ public class TransactionManager<TDbContext> : ITransactionManager where TDbConte
 
     public async ValueTask DisposeAsync()
     {
-        if (_isCommitted && _dbContext.Database.CurrentTransaction != default)
+        if (!_isCommitted && _dbContext.Database.CurrentTransaction != default)
         {
             await _dbContext.Database.CurrentTransaction.RollbackAsync().ConfigureAwait(false);
         }
