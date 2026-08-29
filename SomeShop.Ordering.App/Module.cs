@@ -1,8 +1,11 @@
 ﻿using System.Data;
 using CqrsVibe.MicrosoftDependencyInjection;
 using Dapper;
+using Grpc.Net.Client;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SomeShop.Common.App;
 using SomeShop.Common.App.Kafka;
 using SomeShop.Common.Domain.Ids;
 using SomeShop.Ordering.App.Cart;
@@ -13,19 +16,22 @@ using SomeShop.Ordering.Domain;
 using SomeShop.Ordering.EF;
 using SomeShop.StockManagement.Contracts;
 
+using CatalogGrpc = SomeShop.Catalog.V1;
+
 namespace SomeShop.Ordering.App;
 
 public static class Module
 {
     private const string ConsumerGroup = "ordering-consumer-group";
 
-    public static IServiceCollection AddOrdering(this IServiceCollection services)
+    public static IServiceCollection AddOrdering(this IServiceCollection services, IConfiguration configuration)
     {
         services
+            .AddConfig<OrderingConfig>(configuration, OrderingConfig.Section)
             .AddCqrsVibe()
             .AddCqrsVibeHandlers(ServiceLifetime.Scoped, new[] { typeof(Module).Assembly })
             //Domain services
-            .AddSingleton<ICatalog, Ordering.App.Cart.Catalog>()
+            .AddCatalogPort(configuration)
             .AddScoped<ICartWithActualPrices,CartWithActualPrices>()
             //App services
             .AddScoped<IOrderCreatedOutbox, OrderCreatedOutbox>()
@@ -36,6 +42,25 @@ public static class Module
             .AddOrderingDb();
 
         return services;
+    }
+
+    /// The ICatalog port has two wirings and the rest of the module cannot tell them apart.
+    /// Switch with Ordering:CatalogTransport (or the Ordering__CatalogTransport env variable).
+    private static IServiceCollection AddCatalogPort(this IServiceCollection services, IConfiguration configuration)
+    {
+        var config = configuration.GetSection(OrderingConfig.Section).Get<OrderingConfig>() ?? new OrderingConfig();
+
+        if (config.CatalogTransport == CatalogTransport.InProcess)
+        {
+            return services.AddSingleton<ICatalog, InProcessCatalog>();
+        }
+
+        // A real deployment would use Grpc.Net.ClientFactory (AddGrpcClient) for channel lifetime,
+        // retries and DNS refresh; kept manual here to keep the wiring visible in one place.
+        return services
+            .AddSingleton(_ => GrpcChannel.ForAddress(config.CatalogGrpcUrl))
+            .AddSingleton(sp => new CatalogGrpc.Service.ServiceClient(sp.GetRequiredService<GrpcChannel>()))
+            .AddSingleton<ICatalog, GrpcCatalog>();
     }
 
     public static void ConfigureConsumers(IRegistryConfigurator configurator)

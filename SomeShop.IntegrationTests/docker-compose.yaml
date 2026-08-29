@@ -6,6 +6,9 @@ services:
       target: api
     environment:
       - ASPNETCORE_ENVIRONMENT=Tests
+      # Run the whole suite against the other wiring of the ICatalog port:
+      #   ORDERING_CATALOG_TRANSPORT=Grpc task run-integration-tests
+      - Ordering__CatalogTransport=${ORDERING_CATALOG_TRANSPORT:-InProcess}
     ports:
       - "${API_GRPC_PORT:-13001}:13001"
       - "${API_HTTP_PORT:-8080}:8080"

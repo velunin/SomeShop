@@ -27,7 +27,7 @@ builder.Services
     })
     .AddCommonServices()
     .AddCatalog()
-    .AddOrdering()
+    .AddOrdering(builder.Configuration)
     .AddStockManagement()
     .AddHostedService<KafkaConsumersBackgroundService>()
     .AddGrpc(options =>

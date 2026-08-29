@@ -1,7 +1,9 @@
 ﻿using CqrsVibe.Queries;
 using Grpc.Core;
+using SomeShop.Catalog.Contracts.InternalApi;
 using SomeShop.Catalog.V1;
 using SomeShop.Common.Domain;
+using SomeShop.Common.Domain.Ids;
 using Money = SomeShop.Common.Proto.Money;
 
 namespace SomeShop.Catalog.App.Api.V1;
@@ -32,5 +34,21 @@ public class GrpcService : Service.ServiceBase
         }
 
         return response;
+    }
+
+    // The gRPC endpoint is a second transport over the same application query the
+    // in-process contract (InternalApi) dispatches — one implementation, two forms.
+    public override async Task<GetProductPriceResponse> GetProductPrice(GetProductPriceRequest request,
+        ServerCallContext context)
+    {
+        var product = await _queryService.QueryAsync(
+            new GetProductPriceById(new ProductId(Guid.Parse(request.ProductId))),
+            context.CancellationToken);
+
+        return new GetProductPriceResponse
+        {
+            ProductId = product.Id.Value.ToString("D"),
+            Price = new Money(product.PriceAmount, product.PriceCurrency)
+        };
     }
 }
