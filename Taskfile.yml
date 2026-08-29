@@ -6,33 +6,66 @@ vars:
   ENV_COMPOSE_FILE: "SomeShop.Api/docker-compose.env.yaml"
   TESTS_COMPOSE_FILE: "SomeShop.IntegrationTests/docker-compose.yaml"
   MIGRATIONS_STARTUP: "--startup-project SomeShop.Api"
+  # Compose v2 ships as a docker plugin, but some setups only have the standalone binary.
+  DOCKER_COMPOSE:
+    sh: 'if docker compose version > /dev/null 2>&1; then echo "docker compose"; else echo "docker-compose"; fi'
+  COMPOSE: '{{.DOCKER_COMPOSE}} -f "{{.ENV_COMPOSE_FILE}}"'
+  COMPOSE_FULL: '{{.DOCKER_COMPOSE}} -f "{{.ENV_COMPOSE_FILE}}" -f "{{.TESTS_COMPOSE_FILE}}"'
 
 tasks:
-  run-env:
+  build:
+    desc: Build the whole solution once, so test runs don't have to
     cmds:
-      - docker compose -f "{{.ENV_COMPOSE_FILE}}" build
-      - docker compose -f "{{.ENV_COMPOSE_FILE}}" up -d --no-build
+      - dotnet build SomeShop.sln --nologo
+
+  unit-tests:
+    desc: Unit + architecture tests against the prebuilt output
+    cmds:
+      - task: build
+      - dotnet test SomeShop.Ordering.Tests --no-build --nologo
+      - dotnet test SomeShop.ArchTests --no-build --nologo
+
+  run-env:
+    desc: Start the infrastructure only (PostgreSQL, Kafka, topics)
+    cmds:
+      # init-kafka is a one-shot container, so it is run separately: `up --wait`
+      # treats an exited container as a failure.
+      - "{{.COMPOSE}} up -d --wait db kafka"
+      - "{{.COMPOSE}} run --rm init-kafka"
 
   stop-env:
     cmds:
-      - docker compose -f "{{.ENV_COMPOSE_FILE}}" down
+      - "{{.COMPOSE_FULL}} down -v --remove-orphans"
+
+  run-app:
+    desc: Start the infrastructure and the API, wait until it reports ready
+    cmds:
+      - "{{.COMPOSE_FULL}} build app"
+      - "{{.COMPOSE_FULL}} up -d --no-build --wait app"
+
+  integration-tests:
+    desc: Run integration tests from the host against a containerised API (fast local loop)
+    cmds:
+      - task: run-app
+      - dotnet build SomeShop.IntegrationTests --nologo
+      - dotnet test SomeShop.IntegrationTests --no-build --nologo
 
   run-integration-tests:
+    desc: Fully containerised integration test run (CI path)
     cmds:
-      - docker compose -f "{{.ENV_COMPOSE_FILE}}" -f "{{.TESTS_COMPOSE_FILE}}" build
-      - docker compose -f "{{.ENV_COMPOSE_FILE}}" -f "{{.TESTS_COMPOSE_FILE}}" up -d --no-build
-      - docker compose -f "{{.ENV_COMPOSE_FILE}}" -f "{{.TESTS_COMPOSE_FILE}}" run tests dotnet test --logger "console;verbosity=detailed"
-      - docker compose -f "{{.ENV_COMPOSE_FILE}}" -f "{{.TESTS_COMPOSE_FILE}}" down
-        
+      - defer: "{{.COMPOSE_FULL}} down -v --remove-orphans"
+      - "{{.COMPOSE_FULL}} build"
+      - "{{.COMPOSE_FULL}} up -d --no-build --wait app"
+      - "{{.COMPOSE_FULL}} run --rm --no-deps tests"
+
   ordering-migrate:
     cmds:
       - dotnet ef migrations {{.CLI_ARGS}} {{.CONTEXT}} {{.MIGRATIONS_STARTUP}}
     vars:
       CONTEXT: "--context OrderingDbContext -p SomeShop.Ordering.EF"
-      
+
   catalog-migrate:
     cmds:
       - dotnet ef migrations {{.CLI_ARGS}} {{.CONTEXT}} {{.MIGRATIONS_STARTUP}}
     vars:
       CONTEXT: "--context CatalogDbContext -p SomeShop.Catalog.EF"
-      

@@ -1,31 +1,33 @@
-version: "3.9"
 services:
   app:
     build:
       context: ../
-      dockerfile: ./SomeShop.Api/Dockerfile
+      dockerfile: ./Dockerfile
+      target: api
     environment:
       - ASPNETCORE_ENVIRONMENT=Tests
     ports:
-      - "13001:13001"
-      - "8080:8080"
+      - "${API_GRPC_PORT:-13001}:13001"
+      - "${API_HTTP_PORT:-8080}:8080"
     healthcheck:
-      test: curl --fail http://localhost:8080/ready || exit 1
-      interval: 5s
-      retries: 10
+      test: ["CMD-SHELL", "curl --fail --silent http://localhost:8080/ready || exit 1"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+      start_period: 3s
     depends_on:
-      - db
-      - init-kafka
-      - kafka
-    
+      db:
+        condition: service_healthy
+      init-kafka:
+        condition: service_completed_successfully
+
   tests:
     build:
       context: ../
-      dockerfile: ./SomeShop.IntegrationTests/Dockerfile
+      dockerfile: ./Dockerfile
+      target: tests
     environment:
       - SOMESHOP_API_URL=http://app:13001
     depends_on:
-      - app
-      - db
-      - init-kafka
-      - kafka
+      app:
+        condition: service_healthy
